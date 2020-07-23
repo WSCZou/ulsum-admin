@@ -1,9 +1,9 @@
 <template>
-  <div :class="{fullscreen:fullscreen}" class="tinymce-container" :style="{width:containerWidth}">
+  <div :class="{fullscreen:fullscreen}" class="tinymce-container" :style="{width:containerWidth,margin:[0,'auto']}">
     <textarea :id="tinymceId" class="tinymce-textarea" />
-    <div class="editor-custom-btn-container">
+    <!--<div class="editor-custom-btn-container">
       <editorImage color="#1890ff" class="editor-upload-btn" @successCBK="imageSuccessCBK" />
-    </div>
+    </div>-->
   </div>
 </template>
 
@@ -12,9 +12,9 @@
  * docs:
  * https://panjiachen.github.io/vue-element-admin-site/feature/component/rich-editor.html#tinymce
  */
-import editorImage from './components/EditorImage'
+// import editorImage from './components/EditorImage'
 import plugins from './plugins'
-import toolbar from './toolbar'
+// import toolbar from './toolbar'
 import load from './dynamicLoadScript'
 
 // why use this cdn, detail see https://github.com/PanJiaChen/tinymce-all-in-one
@@ -22,7 +22,7 @@ const tinymceCDN = 'https://cdn.jsdelivr.net/npm/tinymce-all-in-one@4.9.3/tinymc
 
 export default {
   name: 'Tinymce',
-  components: { editorImage },
+  // components: { editorImage },
   props: {
     id: {
       type: String,
@@ -54,6 +54,10 @@ export default {
       type: [Number, String],
       required: false,
       default: 'auto'
+    },
+    isPublish: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -84,6 +88,11 @@ export default {
       if (!this.hasChange && this.hasInit) {
         this.$nextTick(() =>
           window.tinymce.get(this.tinymceId).setContent(val || ''))
+      }
+      if (this.isPublish) {
+        this.$nextTick(() =>
+          window.tinymce.get(this.tinymceId).setContent(val || ''))
+        this.$emit('setEmptyed', false)
       }
     }
   },
@@ -116,12 +125,12 @@ export default {
       const _this = this
       window.tinymce.init({
         selector: `#${this.tinymceId}`,
-        language: this.languageTypeList['en'],
+        language: this.languageTypeList['zh'],
         height: this.height,
         body_class: 'panel-body ',
         object_resizing: false,
-        toolbar: this.toolbar.length > 0 ? this.toolbar : toolbar,
-        menubar: this.menubar,
+        // toolbar: this.toolbar.length > 0 ? this.toolbar : toolbar,
+        menubar: '', // this.menubar,
         plugins: plugins,
         end_container_on_empty_block: true,
         powerpaste_word_import: 'clean',
@@ -140,6 +149,7 @@ export default {
           _this.hasInit = true
           editor.on('NodeChange Change KeyUp SetContent', () => {
             this.hasChange = true
+            // console.log(editor.getContent())
             this.$emit('input', editor.getContent())
           })
         },
@@ -199,6 +209,7 @@ export default {
     },
     setContent(value) {
       window.tinymce.get(this.tinymceId).setContent(value)
+      console.log('set:', value)
     },
     getContent() {
       window.tinymce.get(this.tinymceId).getContent()

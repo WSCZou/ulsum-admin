@@ -15,3 +15,11 @@ export function transactionList(query) {
     params: query
   })
 }
+
+export function searchCategory(name) {
+  return request({
+    url: '/search/category',
+    method: 'get',
+    params: { name }
+  })
+}
